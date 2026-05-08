@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>どうぶつ　りょういく</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Hiragino Maru Gothic ProN', 'HGMaruGothicMPRO', 'メイリオ', sans-serif;
+  background: #FFF9F2;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* ── SCREENS ── */
+.screen { display: none; min-height: 100vh; padding: 20px; flex-direction: column; align-items: center; }
+.screen.on { display: flex; }
+
+/* ── HOME ── */
+#home { justify-content: center; gap: 24px; }
+
+.home-mark { font-size: 5rem; text-align: center; line-height: 1; }
+.home-title { font-size: 2.4rem; font-weight: bold; color: #E85D04; text-align: center; }
+.home-sub   { font-size: 1.1rem; color: #aaa; text-align: center; }
+
+.menu-grid { display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 480px; }
+
+.menu-card {
+  display: flex; align-items: center; gap: 20px;
+  background: white; border-radius: 20px; padding: 22px 28px;
+  box-shadow: 0 4px 18px rgba(0,0,0,.09);
+  cursor: pointer; transition: transform .18s, box-shadow .18s;
+  border: 3px solid transparent;
+}
+.menu-card:hover  { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(0,0,0,.14); }
+.menu-card:active { transform: scale(.97); }
+.menu-card.mc  { border-color: #4CC9F0; }
+.menu-card.pt  { border-color: #F72585; }
+.menu-card.st  { border-color: #FFBE0B; }
+
+.menu-icon  { font-size: 3.2rem; }
+.menu-text .t1 { font-size: 1.8rem; font-weight: bold; color: #222; }
+.menu-text .t2 { font-size: 1rem; color: #888; margin-top: 2px; }
+
+/* ── LEVEL SELECT ── */
+#levelSelect { justify-content: center; gap: 24px; }
+
+.lv-title { font-size: 2.2rem; font-weight: bold; color: #E85D04; text-align: center; }
+.lv-sub   { font-size: 1rem; color: #aaa; }
+
+.lv-grid { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 400px; }
+
+.lv-card {
+  background: white; border-radius: 16px; padding: 18px 24px;
+  text-align: center; cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0,0,0,.08);
+  transition: transform .15s; border: 3px solid #ddd;
+}
+.lv-card:hover  { transform: scale(1.03); }
+.lv-card:active { transform: scale(.97); }
+.lv-card.e { border-color: #4CC9F0; }
+.lv-card.m { border-color: #FFBE0B; }
+.lv-card.h { border-color: #F72585; }
+
+.lv-stars { font-size: 1.6rem; font-weight: bold; color: #555; }
+.lv-preview { font-size: 2.2rem; margin: 8px 0 4px; letter-spacing: .2em; }
+.lv-desc  { font-size: .95rem; color: #777; }
+
+.back-btn {
+  background: #f0f0f0; border: none; border-radius: 50px;
+  padding: 12px 28px; font-size: 1.1rem; cursor: pointer;
+  transition: background .15s; color: #444; font-weight: bold;
+}
+.back-btn:hover { background: #e0e0e0; }
+
+/* ── GAME ── */
+#game { justify-content: flex-start; gap: 16px; padding-top: 20px; }
+
+.game-top {
+  display: flex; justify-content: space-between; align-items: center;
+  width: 100%; max-width: 600px;
+}
+
+.g-back {
+  background: #f0f0f0; border: none; border-radius: 50%;
+  width: 48px; height: 48px; font-size: 1.4rem;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.g-back:hover { background: #ddd; }
+
+.prog-row { display: flex; gap: 7px; }
+.prog-dot { width: 14px; height: 14px; border-radius: 50%; background: #ddd; transition: background .3s; }
+.prog-dot.done    { background: #4CC9F0; }
+.prog-dot.current { background: #E85D04; }
+
+.lv-badge {
+  background: #FFF3CD; border-radius: 20px;
+  padding: 5px 14px; font-weight: bold; color: #856404; font-size: .9rem;
+}
+
+/* Instruction box */
+.inst-box {
+  background: white; border-radius: 20px;
+  padding: 16px 40px; text-align: center;
+  box-shadow: 0 4px 18px rgba(0,0,0,.08);
+  width: 100%; max-width: 600px;
+}
+.inst-hint { font-size: .85rem; color: #bbb; margin-bottom: 4px; }
+.inst-main { font-size: 3rem; font-weight: bold; color: #222; letter-spacing: .08em; }
+
+/* Sample card */
+.sample-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.sample-label {
+  background: #FFF0E8; color: #E85D04;
+  border-radius: 20px; padding: 4px 20px;
+  font-weight: bold; font-size: 1rem;
+}
+.sample-card {
+  width: 140px; height: 140px;
+  background: white; border-radius: 22px;
+  border: 4px solid #E85D04;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 5.5rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,.12);
+}
+
+.arrow-hint { font-size: 2.5rem; color: #E85D04; animation: arrowBob 1s ease-in-out infinite; }
+@keyframes arrowBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
+
+/* Choices */
+.choices { display: flex; gap: 18px; flex-wrap: wrap; justify-content: center; }
+
+.choice {
+  width: 155px; height: 165px;
+  background: white; border-radius: 22px;
+  border: 4px solid #e8e8e8;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: transform .15s, border-color .15s, box-shadow .15s;
+  box-shadow: 0 4px 14px rgba(0,0,0,.08);
+}
+.choice:hover  { transform: scale(1.06); box-shadow: 0 8px 24px rgba(0,0,0,.15); }
+.choice:active { transform: scale(.95); }
+
+.choice-emoji { font-size: 5.5rem; line-height: 1; }
+.choice-name  { font-size: 1.1rem; font-weight: bold; color: #555; margin-top: 6px; }
+
+.choice.ok   { border-color: #4CC9F0; background: #F0FCFF; animation: popOk .35s ease; }
+.choice.ng   { border-color: #F72585; background: #FFF0F6; animation: shakeNg .4s ease; }
+.choice.hint { border-color: #4CC9F0; background: #F0FCFF; }
+
+@keyframes popOk  { 0%{transform:scale(1)} 50%{transform:scale(1.18)} 100%{transform:scale(1)} }
+@keyframes shakeNg{ 0%,100%{transform:translateX(0)} 25%{transform:translateX(-10px)} 75%{transform:translateX(10px)} }
+
+/* Sorting special: category buttons */
+.cat-choices { display: flex; gap: 24px; justify-content: center; }
+.cat-btn {
+  width: 175px; height: 180px;
+  border-radius: 24px; border: 4px solid #ddd;
+  background: white; cursor: pointer;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 8px;
+  transition: transform .15s, box-shadow .15s;
+  box-shadow: 0 4px 14px rgba(0,0,0,.08);
+  font-size: 1.3rem; font-weight: bold; color: #555;
+}
+.cat-btn .cat-icon { font-size: 4.5rem; line-height: 1; }
+.cat-btn:hover  { transform: scale(1.06); box-shadow: 0 8px 24px rgba(0,0,0,.15); }
+.cat-btn:active { transform: scale(.95); }
+.cat-btn.ie  { border-color: #FFBE0B; }
+.cat-btn.mori{ border-color: #38B000; }
+.cat-btn.ok  { background: #F0FCFF; border-color: #4CC9F0; animation: popOk .35s ease; }
+.cat-btn.ng  { background: #FFF0F6; border-color: #F72585; animation: shakeNg .4s ease; }
+.cat-btn.hint{ background: #F0FCFF; border-color: #4CC9F0; }
+
+/* ── CELEBRATION ── */
+.celeb {
+  position: fixed; inset: 0;
+  background: rgba(76,201,240,.88);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 200; opacity: 0; pointer-events: none;
+  transition: opacity .25s;
+}
+.celeb.on { opacity: 1; pointer-events: all; }
+
+.celeb-ani  { font-size: 9rem; animation: celebBounce .45s ease infinite alternate; }
+.celeb-text { font-size: 4rem; font-weight: bold; color: white; text-shadow: 2px 3px 12px rgba(0,0,0,.2); margin-top: 16px; }
+.celeb-stars{ font-size: 3rem; margin-top: 14px; }
+
+@keyframes celebBounce { from{transform:translateY(0)} to{transform:translateY(-22px)} }
+
+/* Confetti */
+.confetti-wrap { position: fixed; inset: 0; pointer-events: none; z-index: 199; }
+.c-bit {
+  position: absolute; width: 10px; height: 10px;
+  border-radius: 2px; animation: cFall linear forwards;
+}
+@keyframes cFall {
+  0%   { transform: translateY(-30px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+}
+
+/* ── RESULTS ── */
+#results { justify-content: center; gap: 28px; }
+.res-emoji { font-size: 8rem; text-align: center; }
+.res-title { font-size: 2.6rem; font-weight: bold; color: #E85D04; text-align: center; }
+.res-stars { font-size: 3rem; text-align: center; }
+.res-score { font-size: 1.4rem; color: #666; text-align: center; }
+
+.btn-row { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+.btn {
+  padding: 16px 34px; border: none; border-radius: 50px;
+  font-size: 1.2rem; font-weight: bold; cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+  box-shadow: 0 4px 14px rgba(0,0,0,.1);
+}
+.btn:hover  { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.15); }
+.btn:active { transform: scale(.96); }
+.btn-p { background: #E85D04; color: white; }
+.btn-s { background: #f0f0f0; color: #444; }
+
+/* responsive: tablet landscape */
+@media (min-width: 700px) {
+  .choices { gap: 24px; }
+  .choice  { width: 170px; height: 180px; }
+}
+@media (max-width: 400px) {
+  .choice  { width: 130px; height: 140px; }
+  .choice-emoji { font-size: 4.5rem; }
+  .cat-btn { width: 148px; height: 155px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Celebration overlay -->
+<div class="celeb" id="celeb">
+  <div class="celeb-ani"  id="celebAni">⭐</div>
+  <div class="celeb-text" id="celebTxt">できた！</div>
+  <div class="celeb-stars" id="celebStars">⭐⭐⭐</div>
+</div>
+
+<div class="confetti-wrap" id="confettiWrap"></div>
+
+<!-- ═══════════════ HOME ═══════════════ -->
+<div class="screen on" id="home">
+  <div class="home-mark">🐾</div>
+  <div class="home-title">どうぶつ　りょういく</div>
+  <div class="home-sub">発達レベル１　教材セット</div>
+
+  <div class="menu-grid">
+    <div class="menu-card mc" onclick="showLv('matching')">
+      <div class="menu-icon">🔍</div>
+      <div class="menu-text">
+        <div class="t1">マッチング</div>
+        <div class="t2">おなじどうぶつを　えらぼう</div>
+      </div>
+    </div>
+    <div class="menu-card pt" onclick="showLv('pointing')">
+      <div class="menu-icon">👆</div>
+      <div class="menu-text">
+        <div class="t1">どれ？</div>
+        <div class="t2">よんだどうぶつを　さそう</div>
+      </div>
+    </div>
+    <div class="menu-card st" onclick="showLv('sorting')">
+      <div class="menu-icon">🏠</div>
+      <div class="menu-text">
+        <div class="t1">なかまわけ</div>
+        <div class="t2">いえ　か　もり　かを　えらぼう</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ LEVEL SELECT ═══════════════ -->
+<div class="screen" id="levelSelect">
+  <div class="lv-title" id="lvTitle">マッチング</div>
+  <div class="lv-sub">むずかしさを　えらんでね</div>
+
+  <div class="lv-grid">
+    <div class="lv-card e" onclick="startGame(2)">
+      <div class="lv-stars">★☆☆　かんたん</div>
+      <div class="lv-preview">🐶　🐱</div>
+      <div class="lv-desc">２つから　えらぶ</div>
+    </div>
+    <div class="lv-card m" onclick="startGame(3)">
+      <div class="lv-stars">★★☆　ふつう</div>
+      <div class="lv-preview">🐶　🐱　🐻</div>
+      <div class="lv-desc">３つから　えらぶ</div>
+    </div>
+    <div class="lv-card h" onclick="startGame(4)">
+      <div class="lv-stars">★★★　むずかしい</div>
+      <div class="lv-preview">🐶　🐱　🐻　🐼</div>
+      <div class="lv-desc">４つから　えらぶ</div>
+    </div>
+  </div>
+
+  <button class="back-btn" onclick="show('home')">← もどる</button>
+</div>
+
+<!-- ═══════════════ GAME ═══════════════ -->
+<div class="screen" id="game">
+  <div class="game-top">
+    <button class="g-back" onclick="show('home')">←</button>
+    <div class="prog-row" id="progRow"></div>
+    <div class="lv-badge" id="lvBadge">★☆☆</div>
+  </div>
+
+  <div class="inst-box">
+    <div class="inst-hint" id="instHint">もんだい</div>
+    <div class="inst-main" id="instMain">おなじ</div>
+  </div>
+
+  <div class="sample-wrap" id="sampleWrap">
+    <div class="sample-label">これ</div>
+    <div class="sample-card" id="sampleCard">🐶</div>
+  </div>
+
+  <div class="arrow-hint" id="arrowHint">↓</div>
+
+  <!-- matching / pointing choices -->
+  <div class="choices" id="choicesArea"></div>
+
+  <!-- sorting: category buttons -->
+  <div class="cat-choices" id="catArea" style="display:none">
+    <button class="cat-btn ie" id="catIe" onclick="answerCat('ie')">
+      <span class="cat-icon">🏠</span>いえ
+    </button>
+    <button class="cat-btn mori" id="catMori" onclick="answerCat('mori')">
+      <span class="cat-icon">🌳</span>もり
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════ RESULTS ═══════════════ -->
+<div class="screen" id="results">
+  <div class="res-emoji"  id="resEmoji">🎉</div>
+  <div class="res-title"  id="resTitle">ぜんぶできた！</div>
+  <div class="res-stars"  id="resStars">⭐⭐⭐</div>
+  <div class="res-score"  id="resScore"></div>
+  <div class="btn-row">
+    <button class="btn btn-p" onclick="restartGame()">もういちど</button>
+    <button class="btn btn-s" onclick="show('home')">メニュー</button>
+  </div>
+</div>
+
+<script>
+// ════ DATA ════
+const ANIMALS = [
+  { e:'🐶', n:'いぬ',     t:'ie'   },
+  { e:'🐱', n:'ねこ',     t:'ie'   },
+  { e:'🐷', n:'ぶた',     t:'ie'   },
+  { e:'🐮', n:'うし',     t:'ie'   },
+  { e:'🐔', n:'にわとり', t:'ie'   },
+  { e:'🐑', n:'ひつじ',   t:'ie'   },
+  { e:'🐻', n:'くま',     t:'mori' },
+  { e:'🐼', n:'パンダ',   t:'mori' },
+  { e:'🐸', n:'かえる',   t:'mori' },
+  { e:'🐰', n:'うさぎ',   t:'mori' },
+  { e:'🦁', n:'ライオン', t:'mori' },
+  { e:'🐘', n:'ぞう',     t:'mori' },
+  { e:'🦒', n:'きりん',   t:'mori' },
+  { e:'🐧', n:'ペンギン', t:'mori' },
+];
+
+const CELEB_MSGS = ['できた！','すごい！','やった！','せいかい！','かんぺき！'];
+const CELEB_ANIS = ['⭐','🌟','🎉','🏆','🎊'];
+const CONFETTI_COLORS = ['#E85D04','#4CC9F0','#FFBE0B','#F72585','#95E1D3','#7B2D8B'];
+
+// ════ STATE ════
+let activity = 'matching';
+let choiceCnt = 2;
+let round = 0;
+let totalRounds = 8;
+let correct = 0;
+let busy = false;
+let sortTarget = null; // for sorting
+
+// ════ NAV ════
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+}
+
+function showLv(act) {
+  activity = act;
+  const titles = { matching:'マッチング', pointing:'どれ？', sorting:'なかまわけ' };
+  document.getElementById('lvTitle').textContent = titles[act];
+
+  if (act === 'sorting') {
+    // sorting always uses 2 category buttons — skip level select
+    startGame(2);
+  } else {
+    show('levelSelect');
+  }
+}
+
+// ════ GAME START ════
+function startGame(n) {
+  choiceCnt = n;
+  round = 0;
+  correct = 0;
+  busy = false;
+
+  const badges = ['','★☆☆','★★☆','★★★'];
+  document.getElementById('lvBadge').textContent = badges[n] || '★★★';
+
+  buildProgress();
+  show('game');
+  nextQ();
+}
+
+function buildProgress() {
+  const row = document.getElementById('progRow');
+  row.innerHTML = '';
+  for (let i = 0; i < totalRounds; i++) {
+    const d = document.createElement('div');
+    d.className = 'prog-dot' + (i === 0 ? ' current' : '');
+    row.appendChild(d);
+  }
+}
+
+function tickProgress() {
+  const dots = document.querySelectorAll('.prog-dot');
+  dots.forEach((d, i) => {
+    d.className = 'prog-dot';
+    if (i < round)      d.classList.add('done');
+    else if (i === round) d.classList.add('current');
+  });
+}
+
+// ════ QUESTION GENERATION ════
+function shuffle(a) {
+  const arr = [...a];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function nextQ() {
+  if (round >= totalRounds) { showResults(); return; }
+  busy = false;
+  tickProgress();
+
+  // Reset UI sections
+  document.getElementById('choicesArea').innerHTML = '';
+  document.getElementById('choicesArea').style.display = 'flex';
+  document.getElementById('catArea').style.display = 'none';
+  document.getElementById('sampleWrap').style.display = 'none';
+  document.getElementById('arrowHint').style.display = 'none';
+  document.getElementById('catIe').className   = 'cat-btn ie';
+  document.getElementById('catMori').className = 'cat-btn mori';
+
+  if (activity === 'matching') buildMatching();
+  else if (activity === 'pointing') buildPointing();
+  else buildSorting();
+}
+
+function buildMatching() {
+  document.getElementById('instHint').textContent = 'おなじものを　さして！';
+  document.getElementById('instMain').textContent = 'おなじ';
+
+  document.getElementById('sampleWrap').style.display = 'flex';
+  document.getElementById('arrowHint').style.display  = 'block';
+
+  const pool = shuffle(ANIMALS).slice(0, choiceCnt);
+  const correct = pool[0];
+  document.getElementById('sampleCard').textContent = correct.e;
+
+  const order = shuffle(pool);
+  const correctIdx = order.findIndex(a => a.e === correct.e);
+  renderChoices(order, correctIdx, false);
+}
+
+function buildPointing() {
+  const pool = shuffle(ANIMALS).slice(0, choiceCnt);
+  const target = pool[0];
+
+  document.getElementById('instHint').textContent = 'どこかな？　さして！';
+  document.getElementById('instMain').textContent = target.n;
+
+  const order = shuffle(pool);
+  const correctIdx = order.findIndex(a => a.e === target.e);
+  renderChoices(order, correctIdx, true);
+}
+
+function buildSorting() {
+  // Pick one animal as the question
+  const animal = shuffle(ANIMALS)[0];
+  sortTarget = animal;
+
+  document.getElementById('instHint').textContent = 'どっちかな？　さして！';
+  document.getElementById('instMain').textContent = animal.n;
+
+  document.getElementById('sampleWrap').style.display = 'flex';
+  document.getElementById('sampleCard').textContent = animal.e;
+  document.getElementById('arrowHint').style.display = 'block';
+
+  document.getElementById('choicesArea').style.display = 'none';
+  document.getElementById('catArea').style.display = 'flex';
+}
+
+function renderChoices(animals, correctIdx, showName) {
+  const area = document.getElementById('choicesArea');
+  area.innerHTML = '';
+  animals.forEach((a, i) => {
+    const div = document.createElement('div');
+    div.className = 'choice';
+    div.innerHTML = `<span class="choice-emoji">${a.e}</span>
+                     ${showName ? `<span class="choice-name">${a.n}</span>` : ''}`;
+    div.onclick = () => handleChoice(i, correctIdx, div);
+    area.appendChild(div);
+  });
+}
+
+// ════ ANSWER HANDLING ════
+function handleChoice(selected, correctIdx, card) {
+  if (busy) return;
+  busy = true;
+
+  const allCards = document.querySelectorAll('.choice');
+  if (selected === correctIdx) {
+    card.classList.add('ok');
+    correct++;
+    setTimeout(celebrate, 280);
+  } else {
+    card.classList.add('ng');
+    allCards[correctIdx].classList.add('hint');
+    setTimeout(() => {
+      card.classList.remove('ng');
+      allCards[correctIdx].classList.remove('hint');
+      round++;
+      nextQ();
+    }, 1600);
+  }
+}
+
+function answerCat(chosen) {
+  if (busy) return;
+  busy = true;
+
+  const isRight = chosen === sortTarget.t;
+  const chosenEl  = document.getElementById(chosen === 'ie' ? 'catIe' : 'catMori');
+  const correctEl = document.getElementById(sortTarget.t === 'ie' ? 'catIe' : 'catMori');
+
+  if (isRight) {
+    chosenEl.classList.add('ok');
+    correct++;
+    setTimeout(celebrate, 280);
+  } else {
+    chosenEl.classList.add('ng');
+    correctEl.classList.add('hint');
+    setTimeout(() => {
+      chosenEl.classList.remove('ng');
+      correctEl.classList.remove('hint');
+      round++;
+      nextQ();
+    }, 1600);
+  }
+}
+
+// ════ CELEBRATION ════
+function celebrate() {
+  const idx = Math.floor(Math.random() * CELEB_MSGS.length);
+  const starCount = 1 + Math.floor(Math.random() * 3);
+
+  document.getElementById('celebAni').textContent  = CELEB_ANIS[idx];
+  document.getElementById('celebTxt').textContent  = CELEB_MSGS[idx];
+  document.getElementById('celebStars').textContent = '⭐'.repeat(starCount);
+
+  document.getElementById('celeb').classList.add('on');
+  spawnConfetti(45);
+
+  setTimeout(() => {
+    document.getElementById('celeb').classList.remove('on');
+    round++;
+    nextQ();
+  }, 1800);
+}
+
+function spawnConfetti(n) {
+  const wrap = document.getElementById('confettiWrap');
+  wrap.innerHTML = '';
+  for (let i = 0; i < n; i++) {
+    const el = document.createElement('div');
+    el.className = 'c-bit';
+    el.style.left     = Math.random() * 100 + 'vw';
+    el.style.background = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+    el.style.animationDuration = (Math.random() * 1.5 + .8) + 's';
+    el.style.animationDelay   = Math.random() * .6 + 's';
+    wrap.appendChild(el);
+  }
+  setTimeout(() => { wrap.innerHTML = ''; }, 2800);
+}
+
+// ════ RESULTS ════
+function showResults() {
+  show('results');
+  const pct = correct / totalRounds;
+  let emoji, title, stars;
+
+  if (pct >= .88)       { emoji='🏆'; title='かんぺき！';   stars='⭐⭐⭐'; }
+  else if (pct >= .63)  { emoji='🌟'; title='よくできた！'; stars='⭐⭐';   }
+  else                  { emoji='🐾'; title='がんばった！'; stars='⭐';     }
+
+  document.getElementById('resEmoji').textContent = emoji;
+  document.getElementById('resTitle').textContent = title;
+  document.getElementById('resStars').textContent = stars;
+  document.getElementById('resScore').textContent =
+    `${totalRounds}もんちゅう　${correct}もん　せいかい！`;
+
+  if (pct >= .63) spawnConfetti(60);
+}
+
+function restartGame() {
+  round = 0;
+  correct = 0;
+  buildProgress();
+  show('game');
+  nextQ();
+}
+</script>
+</body>
+</html>
